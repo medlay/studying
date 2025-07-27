@@ -1,4 +1,4 @@
-# 🧵 Swift 6 Concurrency Cheatsheet
+# 🧵 Swift 6 Concurrency — Cheatsheet
 
 ## ✅ Основи
 
@@ -7,7 +7,9 @@
 - `Sendable` — безпечні типи для паралелізму
 - `actor` — клас із захистом від race condition
 
-## 🧠 Приклад: Sendable
+---
+
+## 🛡️ `Sendable`
 
 ```swift
 struct User: Sendable {
@@ -15,7 +17,9 @@ struct User: Sendable {
 }
 ```
 
-## 🎭 Приклад: actor
+---
+
+## 🎭 `actor`
 
 ```swift
 actor Counter {
@@ -31,13 +35,15 @@ actor Counter {
 }
 ```
 
-## 🛡️ MainActor
+---
+
+## 🌍 @MainActor
 
 ```swift
 @MainActor
 class ViewModel {
     func updateUI() {
-        // виконується на головному потоці
+        print("Updated")
     }
 }
 ```

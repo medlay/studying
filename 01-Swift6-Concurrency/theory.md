@@ -315,3 +315,125 @@ func performRequest() async {
 
 ---
 
+
+---
+
+# 🚀 Advanced Swift Concurrency (розширена теорія)
+
+## 🔹 async let — паралельна ініціалізація
+
+```swift
+async let user = fetchUser()
+async let posts = fetchPosts()
+
+let result = await (user, posts)
+```
+
+- 🔸 Краще за `TaskGroup` для невеликої кількості незалежних викликів
+- ❌ Помилки не ловляться окремо — якщо один падає, падають всі
+
+---
+
+## 🔹 withThrowingTaskGroup
+
+```swift
+await withThrowingTaskGroup(of: Int.self) { group in
+    group.addTask { throw SomeError() }
+    for try await result in group {
+        print(result)
+    }
+}
+```
+
+- Дозволяє додавати задачі, які можуть кинути помилку
+- `try await` — обов’язково
+
+---
+
+## 🔹 TaskCancellationHandler
+
+```swift
+try await Task.withCancellationHandler(
+    operation: {
+        try await longOp()
+    },
+    onCancel: {
+        cleanup()
+    }
+)
+```
+
+- Дозволяє виконати код при скасуванні
+- Дуже корисно у networking
+
+---
+
+## 🔹 MainActor.run
+
+```swift
+Task.detached {
+    await MainActor.run {
+        label.text = "Updated"
+    }
+}
+```
+
+- Викликає блок **на головному потоці** навіть з фону
+
+---
+
+## 🔹 nonisolated(unsafe)
+
+```swift
+actor Logger {
+    nonisolated(unsafe) func log(_ msg: String) {
+        print(msg)
+    }
+}
+```
+
+- ❗ Використовуй **дуже обережно**
+- Дає доступ без ізоляції → можливі race condition
+
+---
+
+## 🔹 @preconcurrency
+
+```swift
+@preconcurrency
+class LegacyClass { ... }
+```
+
+- Вимикає компіляторну перевірку concurrency для сумісності з legacy-кодом
+
+---
+
+## 🔹 @unchecked Sendable
+
+```swift
+final class UnsafeWrapper: @unchecked Sendable {
+    var buffer: UnsafeMutableRawPointer
+}
+```
+
+- Примусово вважає тип `Sendable`, але компілятор більше не перевіряє
+
+---
+
+## 🔹 Custom GlobalActor
+
+```swift
+@globalActor
+struct AnalyticsActor {
+    static let shared = ActorInstance()
+}
+
+@AnalyticsActor
+func trackEvent() { ... }
+```
+
+- Створення власної "глобальної" черги/ізоляції
+- Схоже на `@MainActor`, але для своїх сценаріїв
+
+---
+
